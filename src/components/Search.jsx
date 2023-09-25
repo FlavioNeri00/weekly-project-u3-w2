@@ -3,11 +3,13 @@ import { Container, Form, InputGroup } from "react-bootstrap";
 import Layout from "./Layout";
 import { useDispatch } from "react-redux";
 import SearchCity from "./SearchCity";
+import { useNavigate } from "react-router-dom";
 
 const Search = () => {
   const [loadingElements, setLoadingElements] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [lonAndLat, setLonAndLat] = useState(null);
+  const navigate = useNavigate();
 
   const dispatch = useDispatch();
 
@@ -16,25 +18,16 @@ const Search = () => {
   };
 
   const URL = "https://api.openweathermap.org/geo/1.0/direct?q=";
-  const accessKey = "&APPID=cf19f67355a5052a780ada98827f9cfb";
+  const accessKey = "&appid=cf19f67355a5052a780ada98827f9cfb";
 
   const fetchingLocation = async () => {
     try {
-      const response = await fetch(URL + searchQuery + accessKey, {
-        body: JSON.stringify(),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(URL + searchQuery + accessKey);
       if (response.ok) {
         console.log(response);
-        const data = await response.json();
-
-        setLonAndLat(...lonAndLat, data.lat);
-        setLonAndLat(...lonAndLat, data.lon);
-
-        console.log("ei", data);
-        console.log(setLonAndLat);
+        const arr = await response.json();
+        console.log("nome", arr.name);
+        navigate(`/city/${arr[0].name}/${arr[0].country}/${arr[0].lat}/${arr[0].lon}`);
       } else {
         alert("fetch error");
       }
@@ -42,43 +35,40 @@ const Search = () => {
   };
 
   useEffect(() => {
-    fetchingLocation();
-  }, [lonAndLat]);
+    if (searchQuery !== "") {
+      fetchingLocation();
+    }
+  }, []);
+
   console.log(loadingElements);
   console.log(lonAndLat);
   console.log(searchQuery);
+
   return (
-    <div>
+    <div style={{ backgroundColor: "#CBD18F", height: "100vh", overflow: "hidden" }}>
       <Container fluid="xl">
+        {loadingElements && lonAndLat ? <SearchCity /> : <h1 className="display-1 my-5 ">Cerca la tua città!</h1>}
+
         <InputGroup className="mb-3  m-auto mt-5">
           <Form
-            className="m-auto w-50"
+            className="m-auto w-50 shadow-lg"
             onSubmit={(e) => {
               e.preventDefault();
               setLoadingElements(true);
               fetchingLocation();
-              // dispatch({
-              //     type:"ADD_LAD_LON",
-              //     payload: lonAndLat
-              // })
             }}
           >
             <Form.Control
               aria-label="Default"
               aria-describedby="inputGroup-sizing-default"
-              placeholder="Cerca la tua città"
+              placeholder="Roma, Milano, Napoli, Torino..."
               value={searchQuery}
               onChange={handleQueryChange}
+              size="lg"
             />
           </Form>
         </InputGroup>
       </Container>
-      <h1>{lonAndLat}</h1>
-      {loadingElements ? (
-        <SearchCity lat={lonAndLat.lat} lon={lonAndLat.lon} />
-      ) : (
-        <h1 className="display-1 my-5">Cerca la tua città</h1>
-      )}
     </div>
   );
 };

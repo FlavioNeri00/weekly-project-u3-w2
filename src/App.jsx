@@ -6,6 +6,7 @@ import MainHome from "./components/MainHome";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import Search from "./components/Search";
+import SearchCity from "./components/SearchCity";
 
 function App() {
   return (
@@ -14,7 +15,8 @@ function App() {
         <TopBar />
         <Routes>
           <Route path="/" element={<MainHome />} />
-          <Route path="/search/" element={<Search />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/city/:name/:country/:lat/:lon/" element={<SearchCity />} />
         </Routes>
       </BrowserRouter>
     </div>
